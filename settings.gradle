@@ -1,2 +1,3 @@
+include ':streaming'
 include ':app'
 rootProject.name = "P2P Streaming"
