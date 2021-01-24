@@ -1,13 +1,14 @@
 package me.koallann.p2ps.peer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class PeerStreaming {
+public final class PeerStreaming {
 
     private final Peer peer;
     private final DatagramSocket streamingSocket;
@@ -57,7 +58,7 @@ public class PeerStreaming {
 
     @FunctionalInterface
     public interface OnReceiveDataListener {
-        void onReceive(byte[] data);
+        void onReceive(InputStream input);
     }
 
 }

@@ -1,10 +1,11 @@
 package me.koallann.p2ps.peer;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-public class PeerViewerThread extends Thread {
+final class PeerViewerThread extends Thread {
 
     private final DatagramSocket streamingSocket;
     private final int packetSize;
@@ -32,7 +33,7 @@ public class PeerViewerThread extends Thread {
                 final DatagramPacket receivePacket = new DatagramPacket(receiveBytes, packetSize);
 
                 streamingSocket.receive(receivePacket);
-                onReceiveDataListener.onReceive(receiveBytes);
+                onReceiveDataListener.onReceive(new ByteArrayInputStream(receiveBytes));
             } catch (IOException e) {
                 e.printStackTrace();
             }

@@ -3,7 +3,7 @@ package me.koallann.p2ps.server;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class PeerServer {
+public final class PeerServer {
 
     private final PeerServerThread serverThread;
 

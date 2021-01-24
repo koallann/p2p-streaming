@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-public class CommandParser {
+public final class CommandParser {
 
     private static final String LINE_DELIMITER = "\n";
     private static final String KEY_VALUE_SEPARATOR = ":";

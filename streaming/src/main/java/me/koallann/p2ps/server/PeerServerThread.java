@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public final class PeerServerThread extends Thread {
+final class PeerServerThread extends Thread {
 
     private final ServerSocket serverSocket;
     private final PeerServer.OnConnectionListener onConnectionListener;
