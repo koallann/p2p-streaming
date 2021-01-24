@@ -54,4 +54,10 @@ public class PeerStreaming {
             }
         });
     }
+
+    @FunctionalInterface
+    public interface OnReceiveDataListener {
+        void onReceive(byte[] data);
+    }
+
 }

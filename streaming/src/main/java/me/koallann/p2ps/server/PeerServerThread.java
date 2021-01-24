@@ -10,11 +10,11 @@ import java.net.Socket;
 public final class PeerServerThread extends Thread {
 
     private final ServerSocket serverSocket;
-    private final OnConnectionListener onConnectionListener;
+    private final PeerServer.OnConnectionListener onConnectionListener;
 
     protected PeerServerThread(
         int port,
-        OnConnectionListener onConnectionListener
+        PeerServer.OnConnectionListener onConnectionListener
     ) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.onConnectionListener = onConnectionListener;
@@ -47,8 +47,4 @@ public final class PeerServerThread extends Thread {
         }
     }
 
-    @FunctionalInterface
-    public interface OnConnectionListener {
-        String onConnection(BufferedReader input);
-    }
 }

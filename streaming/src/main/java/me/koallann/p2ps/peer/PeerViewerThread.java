@@ -8,12 +8,12 @@ public class PeerViewerThread extends Thread {
 
     private final DatagramSocket streamingSocket;
     private final int packetSize;
-    private final OnReceiveDataListener onReceiveDataListener;
+    private final PeerStreaming.OnReceiveDataListener onReceiveDataListener;
 
     public PeerViewerThread(
         DatagramSocket streamingSocket,
         int packetSize,
-        OnReceiveDataListener onReceiveDataListener
+        PeerStreaming.OnReceiveDataListener onReceiveDataListener
     ) {
         if (packetSize < 1) {
             throw new IllegalArgumentException("Packet size must be greater than 0");
@@ -39,8 +39,10 @@ public class PeerViewerThread extends Thread {
         }
     }
 
-    @FunctionalInterface
-    public interface OnReceiveDataListener {
-        void onReceive(byte[] data);
+    @Override
+    public void interrupt() {
+        super.interrupt();
+        streamingSocket.close();
     }
+
 }

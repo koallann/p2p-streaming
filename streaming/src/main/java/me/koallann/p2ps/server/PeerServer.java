@@ -1,13 +1,14 @@
 package me.koallann.p2ps.server;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 
 public class PeerServer {
 
     private final PeerServerThread serverThread;
 
-    public PeerServer(int port) throws IOException {
-        this.serverThread = new PeerServerThread(port, null);
+    public PeerServer(int port, OnConnectionListener onConnectionListener) throws IOException {
+        this.serverThread = new PeerServerThread(port, onConnectionListener);
     }
 
     public void listen() {
@@ -16,6 +17,11 @@ public class PeerServer {
 
     public void stop() {
         serverThread.interrupt();
+    }
+
+    @FunctionalInterface
+    public interface OnConnectionListener {
+        String onConnection(BufferedReader input);
     }
 
 }
