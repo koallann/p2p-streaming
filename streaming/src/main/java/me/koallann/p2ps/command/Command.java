@@ -9,7 +9,7 @@ public abstract class Command {
     }
 
     public enum Type {
-        CONNECT_ME
+        CONNECT_ME, STREAM
     }
 
 }

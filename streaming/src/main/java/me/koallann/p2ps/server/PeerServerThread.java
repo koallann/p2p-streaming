@@ -1,9 +1,7 @@
 package me.koallann.p2ps.server;
 
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -26,9 +24,8 @@ public final class PeerServerThread extends Thread {
         while (!isInterrupted()) {
             try {
                 final Socket conn = serverSocket.accept();
-                final BufferedReader connInput = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 final DataOutputStream connOutput = new DataOutputStream(conn.getOutputStream());
-                final String response = onConnectionListener.onConnection(connInput);
+                final String response = onConnectionListener.onConnection(conn.getInputStream());
 
                 connOutput.writeBytes(response);
             } catch (IOException e) {

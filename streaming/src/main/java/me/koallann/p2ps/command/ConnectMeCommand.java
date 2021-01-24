@@ -13,7 +13,7 @@ public class ConnectMeCommand extends Command {
         this.port = port;
     }
 
-    public static ConnectMeCommand create(Map<String, String> requestParams) throws IllegalArgumentException {
+    public static ConnectMeCommand from(Map<String, String> requestParams) throws IllegalArgumentException {
         final String portStr = requestParams.get(PARAM_PORT);
         if (portStr == null) {
             throw new IllegalArgumentException(String.format("Parameter \"%s\" not set", PARAM_PORT));
