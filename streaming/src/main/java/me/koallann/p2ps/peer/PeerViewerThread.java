@@ -33,7 +33,7 @@ final class PeerViewerThread extends Thread {
                 final DatagramPacket receivePacket = new DatagramPacket(receiveBytes, packetSize);
 
                 streamingSocket.receive(receivePacket);
-                onReceiveDataListener.onReceive(new ByteArrayInputStream(receiveBytes));
+                onReceiveDataListener.onReceive(receivePacket.getAddress(), new ByteArrayInputStream(receiveBytes));
             } catch (IOException e) {
                 e.printStackTrace();
             }

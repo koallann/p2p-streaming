@@ -25,9 +25,10 @@ final class PeerServerThread extends Thread {
             try {
                 final Socket conn = serverSocket.accept();
                 final DataOutputStream connOutput = new DataOutputStream(conn.getOutputStream());
-                final String response = onConnectionListener.onConnection(conn.getInputStream());
+                final String response = onConnectionListener.onConnection(conn.getInetAddress(), conn.getInputStream());
 
                 connOutput.writeBytes(response);
+                conn.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }

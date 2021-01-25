@@ -1,6 +1,7 @@
 package me.koallann.p2ps.command;
 
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -9,9 +10,14 @@ public final class CommandParser {
 
     private static final String LINE_DELIMITER = "\n";
     private static final String KEY_VALUE_SEPARATOR = ":";
+
     private static final int BODY_MAX_SIZE = 1024;
 
-    public Command readCommand(InputStream request) {
+    private CommandParser() {
+        // This is a pure static class
+    }
+
+    public static Command readCommand(InetAddress address, InputStream request) {
         final Scanner scanner = new Scanner(request);
         scanner.useDelimiter(LINE_DELIMITER);
 
@@ -23,7 +29,7 @@ public final class CommandParser {
 
         switch (Command.Type.valueOf(cmdTypeId)) {
             case CONNECT_ME:
-                return ConnectMeCommand.from(requestParams);
+                return ConnectMeCommand.from(address, requestParams);
             case STREAM:
                 return StreamCommand.from(requestBody);
             default:
@@ -31,7 +37,19 @@ public final class CommandParser {
         }
     }
 
-    private Map<String, String> buildParams(Scanner scanner) throws IllegalArgumentException {
+    public static <E extends Exception> String readParamOrElseThrow(
+        Map<String, String> params,
+        String key,
+        E exception
+    ) throws E {
+        final String value = params.get(key);
+        if (value == null) {
+            throw exception;
+        }
+        return value;
+    }
+
+    private static Map<String, String> buildParams(Scanner scanner) throws IllegalArgumentException {
         final Map<String, String> params = new HashMap<>();
 
         while (scanner.hasNext()) {
@@ -50,7 +68,7 @@ public final class CommandParser {
         return params;
     }
 
-    private byte[] buildBody(Scanner scanner) {
+    private static byte[] buildBody(Scanner scanner) {
         byte[] data = new byte[BODY_MAX_SIZE];
         int size = 0;
 

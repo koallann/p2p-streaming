@@ -4,50 +4,57 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public final class PeerStreaming {
 
-    private final Peer peer;
+    private Peer peer;
     private final DatagramSocket streamingSocket;
     private final ExecutorService emitter;
     private final PeerViewerThread viewerThread;
 
-    public PeerStreaming(Peer peer) throws SocketException {
-        this.peer = peer;
+    public PeerStreaming(OnReceiveDataListener onReceiveDataListener) throws SocketException {
         this.streamingSocket = new DatagramSocket();
         this.emitter = Executors.newSingleThreadExecutor();
-        this.viewerThread = new PeerViewerThread(streamingSocket, 1024, null);
+        this.viewerThread = new PeerViewerThread(streamingSocket, 1024, onReceiveDataListener);
     }
 
     public int getViewerPort() {
         return streamingSocket.getPort();
     }
 
-    public void startViewing() {
+    public Peer getPeer() {
+        return this.peer;
+    }
+
+    public void setPeer(Peer peer) {
+        this.peer = peer;
+    }
+
+    public void start() {
         viewerThread.start();
     }
 
-    public void stopViewing() {
-        viewerThread.interrupt();
-    }
-
-    public void stopStreaming() {
+    public void stop() {
         emitter.shutdown();
         viewerThread.interrupt();
         streamingSocket.close();
     }
 
     public void send(byte[] data) {
+        if (peer == null) {
+            return;
+        }
         emitter.submit(() -> {
             try {
                 final DatagramPacket packet = new DatagramPacket(
                     data,
                     data.length,
-                    peer.getAddress(),
-                    peer.getViewerPort()
+                    InetAddress.getByName(peer.host),
+                    peer.viewerPort
                 );
                 streamingSocket.send(packet);
             } catch (IOException e) {
@@ -58,7 +65,7 @@ public final class PeerStreaming {
 
     @FunctionalInterface
     public interface OnReceiveDataListener {
-        void onReceive(InputStream input);
+        void onReceive(InetAddress address, InputStream input);
     }
 
 }
