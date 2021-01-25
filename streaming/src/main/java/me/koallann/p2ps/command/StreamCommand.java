@@ -2,9 +2,11 @@ package me.koallann.p2ps.command;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Locale;
+import java.net.InetAddress;
 
-public class StreamCommand extends Command {
+import me.koallann.p2ps.util.StringUtils;
+
+public final class StreamCommand extends Command {
 
     public final byte[] data;
 
@@ -21,13 +23,13 @@ public class StreamCommand extends Command {
         return new StreamCommand(requestBody);
     }
 
-    public static byte[] buildRequest(byte[] data) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(String.format(Locale.ENGLISH, "%s\n\n", Type.STREAM.name()).getBytes());
+    public static Request buildRequest(byte[] data) throws IOException {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        outputStream.write(StringUtils.format("%s\n\n", Type.STREAM.name()).getBytes());
         outputStream.write(data);
         outputStream.close();
 
-        return outputStream.toByteArray();
+        return new Request(InetAddress.getLocalHost(), outputStream.toByteArray());
     }
 
 }

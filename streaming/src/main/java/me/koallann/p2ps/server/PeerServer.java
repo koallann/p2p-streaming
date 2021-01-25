@@ -1,8 +1,8 @@
 package me.koallann.p2ps.server;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.InetAddress;
+
+import me.koallann.p2ps.command.Request;
 
 public final class PeerServer {
 
@@ -22,7 +22,7 @@ public final class PeerServer {
 
     @FunctionalInterface
     public interface OnConnectionListener {
-        String onConnection(InetAddress address, InputStream request) throws IOException;
+        byte[] onConnection(Request request) throws IOException;
     }
 
 }

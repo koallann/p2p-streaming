@@ -1,11 +1,15 @@
 package me.koallann.p2ps.server;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import me.koallann.p2ps.util.ByteUtils;
+import me.koallann.p2ps.command.Request;
+
 final class PeerServerThread extends Thread {
+
+    private static final int DATA_MAX_SIZE = 1024;
 
     private final ServerSocket serverSocket;
     private final PeerServer.OnConnectionListener onConnectionListener;
@@ -24,10 +28,14 @@ final class PeerServerThread extends Thread {
         while (!isInterrupted()) {
             try {
                 final Socket conn = serverSocket.accept();
-                final DataOutputStream connOutput = new DataOutputStream(conn.getOutputStream());
-                final String response = onConnectionListener.onConnection(conn.getInetAddress(), conn.getInputStream());
 
-                connOutput.writeBytes(response);
+                final Request request = new Request(
+                    conn.getInetAddress(),
+                    ByteUtils.read(conn.getInputStream(), DATA_MAX_SIZE)
+                );
+                final byte[] response = onConnectionListener.onConnection(request);
+
+                conn.getOutputStream().write(response);
                 conn.close();
             } catch (IOException e) {
                 e.printStackTrace();

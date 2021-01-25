@@ -1,12 +1,15 @@
 package me.koallann.p2ps.command;
 
+import java.io.IOException;
 import java.net.InetAddress;
-import java.util.Locale;
 import java.util.Map;
 
-public class ConnectMeCommand extends Command {
+import me.koallann.p2ps.util.MapUtils;
+import me.koallann.p2ps.util.StringUtils;
 
-    public static final String PARAM_PORT = "Port";
+public final class ConnectMeCommand extends Command {
+
+    private static final String PARAM_PORT = "Port";
 
     public final String host;
     public final int port;
@@ -18,27 +21,28 @@ public class ConnectMeCommand extends Command {
     }
 
     public static ConnectMeCommand from(InetAddress address, Map<String, String> requestParams) throws IllegalArgumentException {
-        final String portStr = CommandParser.readParamOrElseThrow(
+        final String portString = MapUtils.readOrElseThrow(
             requestParams,
             PARAM_PORT,
-            new IllegalArgumentException(String.format("Parameter \"%s\" not set", PARAM_PORT))
+            new IllegalArgumentException(StringUtils.format("Parameter \"%s\" not set", PARAM_PORT))
         );
 
         final int port;
         try {
-            port = Integer.parseInt(portStr);
-            if (port < 1) {
-                throw new NumberFormatException();
-            }
+            port = Integer.parseInt(portString);
+            if (port < 1) throw new NumberFormatException();
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException(String.format("Parameter \"%s\" must be an integer greater than 0", PARAM_PORT));
+            throw new IllegalArgumentException(StringUtils.format("Parameter \"%s\" must be an integer greater than 0", PARAM_PORT));
         }
 
         return new ConnectMeCommand(address.getHostAddress(), port);
     }
 
-    public static String buildRequest(int port) {
-        return String.format(Locale.ENGLISH, "%s\nPort: %d\n", Type.CONNECT_ME.name(), port);
+    public static Request buildRequest(int port) throws IOException {
+        return new Request(
+            InetAddress.getLocalHost(),
+            StringUtils.format("%s\nPort: %d", Type.CONNECT_ME.name(), port).getBytes()
+        );
     }
 
 }

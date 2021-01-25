@@ -1,10 +1,12 @@
 package me.koallann.p2ps.command;
 
-import java.io.InputStream;
-import java.net.InetAddress;
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
+
+import me.koallann.p2ps.util.ByteUtils;
+import me.koallann.p2ps.util.StringUtils;
 
 public final class CommandParser {
 
@@ -17,19 +19,17 @@ public final class CommandParser {
         // This is a pure static class
     }
 
-    public static Command readCommand(InetAddress address, InputStream request) {
-        final Scanner scanner = new Scanner(request);
+    public static Command readCommand(Request request) {
+        final Scanner scanner = new Scanner(new ByteArrayInputStream(request.data));
         scanner.useDelimiter(LINE_DELIMITER);
 
-        final String cmdTypeLine = scanner.nextLine();
-        final String cmdTypeId = cmdTypeLine.substring(0, cmdTypeLine.indexOf(" "));
+        final String commandTypeLine = scanner.nextLine();
+        final Map<String, String> requestParams = buildRequestParams(scanner);
+        final byte[] requestBody = buildRequestBody(scanner);
 
-        final Map<String, String> requestParams = buildParams(scanner);
-        final byte[] requestBody = buildBody(scanner);
-
-        switch (Command.Type.valueOf(cmdTypeId)) {
+        switch (Command.Type.valueOf(commandTypeLine)) {
             case CONNECT_ME:
-                return ConnectMeCommand.from(address, requestParams);
+                return ConnectMeCommand.from(request.from, requestParams);
             case STREAM:
                 return StreamCommand.from(requestBody);
             default:
@@ -37,19 +37,7 @@ public final class CommandParser {
         }
     }
 
-    public static <E extends Exception> String readParamOrElseThrow(
-        Map<String, String> params,
-        String key,
-        E exception
-    ) throws E {
-        final String value = params.get(key);
-        if (value == null) {
-            throw exception;
-        }
-        return value;
-    }
-
-    private static Map<String, String> buildParams(Scanner scanner) throws IllegalArgumentException {
+    private static Map<String, String> buildRequestParams(Scanner scanner) throws IllegalArgumentException {
         final Map<String, String> params = new HashMap<>();
 
         while (scanner.hasNext()) {
@@ -60,7 +48,7 @@ public final class CommandParser {
 
             final String[] keyValue = line.split(KEY_VALUE_SEPARATOR);
             if (keyValue.length != 2) {
-                throw new IllegalArgumentException("Invalid parameter format");
+                throw new IllegalArgumentException(StringUtils.format("Invalid parameter format: %s", line));
             }
 
             params.put(keyValue[0], keyValue[1]);
@@ -68,19 +56,18 @@ public final class CommandParser {
         return params;
     }
 
-    private static byte[] buildBody(Scanner scanner) {
-        byte[] data = new byte[BODY_MAX_SIZE];
-        int size = 0;
+    private static byte[] buildRequestBody(Scanner scanner) {
+        byte[] body = new byte[BODY_MAX_SIZE];
+        int read = 0;
 
-        while (scanner.hasNextByte() && size < BODY_MAX_SIZE) {
-            data[size++] = scanner.nextByte();
+        while (scanner.hasNextByte() && read < BODY_MAX_SIZE) {
+            body[read++] = scanner.nextByte();
         }
-        if (size < BODY_MAX_SIZE) {
-            byte[] newData = new byte[size];
-            System.arraycopy(data, 0, newData, 0, size);
-            data = newData;
+        if (read < BODY_MAX_SIZE) {
+            body = ByteUtils.resizeArray(body, read);
         }
-        return data;
+
+        return body;
     }
 
 }

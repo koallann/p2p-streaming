@@ -1,10 +1,6 @@
 package me.koallann.p2ps;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.HashMap;
@@ -13,10 +9,13 @@ import java.util.Map;
 import me.koallann.p2ps.command.Command;
 import me.koallann.p2ps.command.CommandParser;
 import me.koallann.p2ps.command.ConnectMeCommand;
+import me.koallann.p2ps.command.Request;
+import me.koallann.p2ps.command.Response;
 import me.koallann.p2ps.command.StreamCommand;
 import me.koallann.p2ps.peer.Peer;
 import me.koallann.p2ps.peer.PeerStreaming;
 import me.koallann.p2ps.server.PeerServer;
+import me.koallann.p2ps.util.ByteUtils;
 
 public final class P2PManager {
 
@@ -43,7 +42,7 @@ public final class P2PManager {
         connectMeRequests.clear();
     }
 
-    public void makeConnectMeRequest(String host) throws IOException {
+    public void requestPeerToConnectMe(String host) throws IOException {
         if (streams.containsKey(host)) {
             return;
         }
@@ -55,13 +54,18 @@ public final class P2PManager {
         streams.put(host, streaming);
         streaming.start();
 
-        final String request = ConnectMeCommand.buildRequest(streaming.getViewerPort());
-        final Socket socket = new Socket(InetAddress.getByName(host), PEER_SERVER_PORT);
-        final DataOutputStream outToServer = new DataOutputStream(socket.getOutputStream());
-        final BufferedReader inFromServer = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        makeConnectMeRequest(host, streaming.getViewerPort());
+    }
 
-        outToServer.writeBytes(request);
-        inFromServer.readLine(); // TODO: handle response
+    private void makeConnectMeRequest(String host, int viewerPort) throws IOException {
+        final Socket socket = new Socket(InetAddress.getByName(host), PEER_SERVER_PORT);
+
+        final Request request = ConnectMeCommand.buildRequest(viewerPort);
+        socket.getOutputStream().write(request.data);
+
+        byte[] responseBytes = ByteUtils.read(socket.getInputStream(), 1024);
+        final Response response = new Response(responseBytes);
+
         socket.close();
     }
 
@@ -69,24 +73,24 @@ public final class P2PManager {
         streams.values().forEach(streaming -> streaming.send(data));
     }
 
-    private synchronized String handleServerIncoming(InetAddress address, InputStream request) {
-        final Command cmd = CommandParser.readCommand(address, request);
+    private synchronized byte[] handleServerIncoming(Request request) {
+        final Command cmd = CommandParser.readCommand(request);
 
         if (cmd instanceof ConnectMeCommand) {
             return onConnectMeCommand((ConnectMeCommand) cmd);
         }
-        return Command.RESPONSE_ERROR;
+        return Response.respondError("Invalid command");
     }
 
-    private synchronized void handleStreamingIncoming(InetAddress address, InputStream request) {
-        final Command cmd = CommandParser.readCommand(address, request);
+    private synchronized void handleStreamingIncoming(Request request) {
+        final Command cmd = CommandParser.readCommand(request);
 
         if (cmd instanceof StreamCommand) {
             onStreamCommand((StreamCommand) cmd);
         }
     }
 
-    private String onConnectMeCommand(ConnectMeCommand cmd) {
+    private byte[] onConnectMeCommand(ConnectMeCommand cmd) {
         final Peer peer = new Peer(cmd.host, cmd.port);
         connectMeRequests.put(peer.host, peer);
 
@@ -94,7 +98,7 @@ public final class P2PManager {
             streams.get(peer.host).setPeer(peer);
         }
 
-        return Command.RESPONSE_OK;
+        return Response.respondOK();
     }
 
     private void onStreamCommand(StreamCommand cmd) {

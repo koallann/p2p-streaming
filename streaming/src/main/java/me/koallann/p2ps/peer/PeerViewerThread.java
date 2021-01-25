@@ -1,26 +1,23 @@
 package me.koallann.p2ps.peer;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
+import me.koallann.p2ps.command.Request;
+
 final class PeerViewerThread extends Thread {
 
+    private static final int PACKET_MAX_SIZE = 1024;
+
     private final DatagramSocket streamingSocket;
-    private final int packetSize;
     private final PeerStreaming.OnReceiveDataListener onReceiveDataListener;
 
     public PeerViewerThread(
         DatagramSocket streamingSocket,
-        int packetSize,
         PeerStreaming.OnReceiveDataListener onReceiveDataListener
     ) {
-        if (packetSize < 1) {
-            throw new IllegalArgumentException("Packet size must be greater than 0");
-        }
         this.streamingSocket = streamingSocket;
-        this.packetSize = packetSize;
         this.onReceiveDataListener = onReceiveDataListener;
     }
 
@@ -29,11 +26,16 @@ final class PeerViewerThread extends Thread {
         super.run();
         while (!isInterrupted()) {
             try {
-                final byte[] receiveBytes = new byte[packetSize];
-                final DatagramPacket receivePacket = new DatagramPacket(receiveBytes, packetSize);
+                final byte[] receiveBytes = new byte[PACKET_MAX_SIZE];
+                final DatagramPacket receivePacket = new DatagramPacket(receiveBytes, PACKET_MAX_SIZE);
 
                 streamingSocket.receive(receivePacket);
-                onReceiveDataListener.onReceive(receivePacket.getAddress(), new ByteArrayInputStream(receiveBytes));
+
+                final Request request = new Request(
+                    receivePacket.getAddress(),
+                    receiveBytes
+                );
+                onReceiveDataListener.onReceive(request);
             } catch (IOException e) {
                 e.printStackTrace();
             }

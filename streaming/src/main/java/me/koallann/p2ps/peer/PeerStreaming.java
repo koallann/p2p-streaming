@@ -1,13 +1,14 @@
 package me.koallann.p2ps.peer;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import me.koallann.p2ps.command.Request;
 
 public final class PeerStreaming {
 
@@ -19,7 +20,7 @@ public final class PeerStreaming {
     public PeerStreaming(OnReceiveDataListener onReceiveDataListener) throws SocketException {
         this.streamingSocket = new DatagramSocket();
         this.emitter = Executors.newSingleThreadExecutor();
-        this.viewerThread = new PeerViewerThread(streamingSocket, 1024, onReceiveDataListener);
+        this.viewerThread = new PeerViewerThread(streamingSocket, onReceiveDataListener);
     }
 
     public int getViewerPort() {
@@ -65,7 +66,7 @@ public final class PeerStreaming {
 
     @FunctionalInterface
     public interface OnReceiveDataListener {
-        void onReceive(InetAddress address, InputStream input);
+        void onReceive(Request request);
     }
 
 }
