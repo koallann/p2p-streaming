@@ -11,7 +11,7 @@ import me.koallann.p2ps.command.CommandParser;
 import me.koallann.p2ps.command.ConnectMeCommand;
 import me.koallann.p2ps.command.Request;
 import me.koallann.p2ps.command.Response;
-import me.koallann.p2ps.command.StreamCommand;
+import me.koallann.p2ps.command.StreamingCommand;
 import me.koallann.p2ps.peer.Peer;
 import me.koallann.p2ps.peer.PeerStreaming;
 import me.koallann.p2ps.server.PeerServer;
@@ -57,6 +57,10 @@ public final class P2PManager {
         makeConnectMeRequest(host, streaming.getViewerPort());
     }
 
+    public void makeStreaming(byte[] data) {
+        streams.values().forEach(streaming -> streaming.send(data));
+    }
+
     private void makeConnectMeRequest(String host, int viewerPort) throws IOException {
         final Socket socket = new Socket(InetAddress.getByName(host), PEER_SERVER_PORT);
 
@@ -67,10 +71,6 @@ public final class P2PManager {
         final Response response = new Response(responseBytes);
 
         socket.close();
-    }
-
-    public void makeStreamRequest(byte[] data) {
-        streams.values().forEach(streaming -> streaming.send(data));
     }
 
     private synchronized byte[] handleServerIncoming(Request request) {
@@ -85,8 +85,8 @@ public final class P2PManager {
     private synchronized void handleStreamingIncoming(Request request) {
         final Command cmd = CommandParser.readCommand(request);
 
-        if (cmd instanceof StreamCommand) {
-            onStreamCommand((StreamCommand) cmd);
+        if (cmd instanceof StreamingCommand) {
+            onStreamingCommand((StreamingCommand) cmd);
         }
     }
 
@@ -101,7 +101,7 @@ public final class P2PManager {
         return Response.respondOK();
     }
 
-    private void onStreamCommand(StreamCommand cmd) {
+    private void onStreamingCommand(StreamingCommand cmd) {
         // TODO: notify listener
     }
 

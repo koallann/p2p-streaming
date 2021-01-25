@@ -30,8 +30,8 @@ public final class CommandParser {
         switch (Command.Type.valueOf(commandTypeLine)) {
             case CONNECT_ME:
                 return ConnectMeCommand.from(request.from, requestParams);
-            case STREAM:
-                return StreamCommand.from(requestBody);
+            case STREAMING:
+                return StreamingCommand.from(requestBody);
             default:
                 return null;
         }
