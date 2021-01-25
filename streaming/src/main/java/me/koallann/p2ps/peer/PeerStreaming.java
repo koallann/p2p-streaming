@@ -24,7 +24,7 @@ public final class PeerStreaming {
     }
 
     public int getViewerPort() {
-        return streamingSocket.getPort();
+        return streamingSocket.getLocalPort();
     }
 
     public Peer getPeer() {

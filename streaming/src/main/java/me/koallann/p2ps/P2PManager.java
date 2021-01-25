@@ -104,7 +104,7 @@ public final class P2PManager {
     }
 
     private void onStreamingCommand(StreamingCommand cmd) {
-        // TODO: notify listener
+        System.out.println("onStreamingCommand: " + cmd.data.length);
     }
 
 }

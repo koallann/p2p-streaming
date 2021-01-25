@@ -49,7 +49,7 @@ public final class CommandParser {
                 throw new IllegalArgumentException(StringUtils.format("Invalid parameter format: %s", line));
             }
 
-            params.put(keyValue[0], keyValue[1]);
+            params.put(keyValue[0].trim(), keyValue[1].trim());
         }
         return params;
     }
