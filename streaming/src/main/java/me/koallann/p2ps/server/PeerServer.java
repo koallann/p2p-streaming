@@ -8,8 +8,8 @@ public final class PeerServer {
 
     private final PeerServerThread serverThread;
 
-    public PeerServer(int port, OnConnectionListener onConnectionListener) throws IOException {
-        this.serverThread = new PeerServerThread(port, onConnectionListener);
+    public PeerServer(int port, int packetMaxSize, OnConnectionListener onConnectionListener) throws IOException {
+        this.serverThread = new PeerServerThread(port, packetMaxSize, onConnectionListener);
     }
 
     public void listen() {

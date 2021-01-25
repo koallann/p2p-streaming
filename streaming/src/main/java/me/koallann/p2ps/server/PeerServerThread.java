@@ -9,16 +9,17 @@ import me.koallann.p2ps.command.Request;
 
 final class PeerServerThread extends Thread {
 
-    private static final int DATA_MAX_SIZE = 1024;
-
     private final ServerSocket serverSocket;
+    private final int packetMaxSize;
     private final PeerServer.OnConnectionListener onConnectionListener;
 
     protected PeerServerThread(
         int port,
+        int packetMaxSize,
         PeerServer.OnConnectionListener onConnectionListener
     ) throws IOException {
         this.serverSocket = new ServerSocket(port);
+        this.packetMaxSize = packetMaxSize;
         this.onConnectionListener = onConnectionListener;
     }
 
@@ -31,7 +32,7 @@ final class PeerServerThread extends Thread {
 
                 final Request request = new Request(
                     conn.getInetAddress(),
-                    ByteUtils.read(conn.getInputStream(), DATA_MAX_SIZE)
+                    ByteUtils.read(conn.getInputStream(), packetMaxSize)
                 );
                 final byte[] response = onConnectionListener.onConnection(request);
 

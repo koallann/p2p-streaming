@@ -17,10 +17,10 @@ public final class PeerStreaming {
     private final ExecutorService emitter;
     private final PeerViewerThread viewerThread;
 
-    public PeerStreaming(OnReceiveDataListener onReceiveDataListener) throws SocketException {
+    public PeerStreaming(int dataMaxSize, OnReceiveDataListener onReceiveDataListener) throws SocketException {
         this.streamingSocket = new DatagramSocket();
         this.emitter = Executors.newSingleThreadExecutor();
-        this.viewerThread = new PeerViewerThread(streamingSocket, onReceiveDataListener);
+        this.viewerThread = new PeerViewerThread(streamingSocket, dataMaxSize, onReceiveDataListener);
     }
 
     public int getViewerPort() {

@@ -13,19 +13,17 @@ public final class CommandParser {
     private static final String LINE_DELIMITER = "\n";
     private static final String KEY_VALUE_SEPARATOR = ":";
 
-    private static final int BODY_MAX_SIZE = 1024;
-
     private CommandParser() {
         // This is a pure static class
     }
 
-    public static Command readCommand(Request request) {
+    public static Command readCommand(Request request, int bodyMaxSize) {
         final Scanner scanner = new Scanner(new ByteArrayInputStream(request.data));
         scanner.useDelimiter(LINE_DELIMITER);
 
         final String commandTypeLine = scanner.nextLine();
         final Map<String, String> requestParams = buildRequestParams(scanner);
-        final byte[] requestBody = buildRequestBody(scanner);
+        final byte[] requestBody = buildRequestBody(scanner, bodyMaxSize);
 
         switch (Command.Type.valueOf(commandTypeLine)) {
             case CONNECT_ME:
@@ -56,14 +54,14 @@ public final class CommandParser {
         return params;
     }
 
-    private static byte[] buildRequestBody(Scanner scanner) {
-        byte[] body = new byte[BODY_MAX_SIZE];
+    private static byte[] buildRequestBody(Scanner scanner, int bodyMaxSize) {
+        byte[] body = new byte[bodyMaxSize];
         int read = 0;
 
-        while (scanner.hasNextByte() && read < BODY_MAX_SIZE) {
+        while (scanner.hasNextByte() && read < bodyMaxSize) {
             body[read++] = scanner.nextByte();
         }
-        if (read < BODY_MAX_SIZE) {
+        if (read < bodyMaxSize) {
             body = ByteUtils.resizeArray(body, read);
         }
 

@@ -19,14 +19,16 @@ import me.koallann.p2ps.util.ByteUtils;
 
 public final class P2PManager {
 
-    private static final int PEER_SERVER_PORT = 8000;
+    private static final int PEER_SERVER_PORT = 9876;
+    private static final int SERVER_PACKET_MAX_SIZE = 64;
+    private static final int STREAMING_PACKET_MAX_SIZE = 1024;
 
     private final PeerServer server;
     private final Map<String, PeerStreaming> streams;
     private final Map<String, Peer> connectMeRequests;
 
     public P2PManager() throws IOException {
-        this.server = new PeerServer(PEER_SERVER_PORT, this::handleServerIncoming);
+        this.server = new PeerServer(PEER_SERVER_PORT, SERVER_PACKET_MAX_SIZE, this::handleServerIncoming);
         this.streams = new HashMap<>();
         this.connectMeRequests = new HashMap<>();
     }
@@ -47,7 +49,7 @@ public final class P2PManager {
             return;
         }
 
-        final PeerStreaming streaming = new PeerStreaming(this::handleStreamingIncoming);
+        final PeerStreaming streaming = new PeerStreaming(STREAMING_PACKET_MAX_SIZE, this::handleStreamingIncoming);
         if (connectMeRequests.containsKey(host)) {
             streaming.setPeer(connectMeRequests.get(host));
         }
@@ -67,14 +69,14 @@ public final class P2PManager {
         final Request request = ConnectMeCommand.buildRequest(viewerPort);
         socket.getOutputStream().write(request.data);
 
-        byte[] responseBytes = ByteUtils.read(socket.getInputStream(), 1024);
+        byte[] responseBytes = ByteUtils.read(socket.getInputStream(), SERVER_PACKET_MAX_SIZE);
         final Response response = new Response(responseBytes);
 
         socket.close();
     }
 
     private synchronized byte[] handleServerIncoming(Request request) {
-        final Command cmd = CommandParser.readCommand(request);
+        final Command cmd = CommandParser.readCommand(request, SERVER_PACKET_MAX_SIZE);
 
         if (cmd instanceof ConnectMeCommand) {
             return onConnectMeCommand((ConnectMeCommand) cmd);
@@ -83,7 +85,7 @@ public final class P2PManager {
     }
 
     private synchronized void handleStreamingIncoming(Request request) {
-        final Command cmd = CommandParser.readCommand(request);
+        final Command cmd = CommandParser.readCommand(request, STREAMING_PACKET_MAX_SIZE);
 
         if (cmd instanceof StreamingCommand) {
             onStreamingCommand((StreamingCommand) cmd);

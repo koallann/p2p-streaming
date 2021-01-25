@@ -8,16 +8,17 @@ import me.koallann.p2ps.command.Request;
 
 final class PeerViewerThread extends Thread {
 
-    private static final int PACKET_MAX_SIZE = 1024;
-
     private final DatagramSocket streamingSocket;
+    private final int dataMaxSize;
     private final PeerStreaming.OnReceiveDataListener onReceiveDataListener;
 
     public PeerViewerThread(
         DatagramSocket streamingSocket,
+        int dataMaxSize,
         PeerStreaming.OnReceiveDataListener onReceiveDataListener
     ) {
         this.streamingSocket = streamingSocket;
+        this.dataMaxSize = dataMaxSize;
         this.onReceiveDataListener = onReceiveDataListener;
     }
 
@@ -26,8 +27,8 @@ final class PeerViewerThread extends Thread {
         super.run();
         while (!isInterrupted()) {
             try {
-                final byte[] receiveBytes = new byte[PACKET_MAX_SIZE];
-                final DatagramPacket receivePacket = new DatagramPacket(receiveBytes, PACKET_MAX_SIZE);
+                final byte[] receiveBytes = new byte[dataMaxSize];
+                final DatagramPacket receivePacket = new DatagramPacket(receiveBytes, dataMaxSize);
 
                 streamingSocket.receive(receivePacket);
 
