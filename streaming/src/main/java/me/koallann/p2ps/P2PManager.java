@@ -27,10 +27,15 @@ public final class P2PManager {
     private final Map<String, PeerStreaming> streams;
     private final Map<String, Peer> connectMeRequests;
 
-    public P2PManager() throws IOException {
+    private final OnReceiveStreamingListener onReceiveStreamingListener;
+
+    public P2PManager(
+        OnReceiveStreamingListener onReceiveStreamingListener
+    ) throws IOException {
         this.server = new PeerServer(PEER_SERVER_PORT, SERVER_PACKET_MAX_SIZE, this::handleServerIncoming);
         this.streams = new HashMap<>();
         this.connectMeRequests = new HashMap<>();
+        this.onReceiveStreamingListener = onReceiveStreamingListener;
     }
 
     public void start() {
@@ -125,7 +130,12 @@ public final class P2PManager {
     }
 
     private void onStreamingCommand(StreamingCommand cmd) {
-        System.out.println("onStreamingCommand: " + cmd.data.length);
+        onReceiveStreamingListener.onReceive(cmd);
+    }
+
+    @FunctionalInterface
+    public interface OnReceiveStreamingListener {
+        void onReceive(StreamingCommand cmd);
     }
 
 }
