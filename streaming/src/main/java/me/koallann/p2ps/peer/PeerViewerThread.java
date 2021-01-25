@@ -12,7 +12,7 @@ import me.koallann.p2ps.command.Request;
 import me.koallann.p2ps.command.StreamingCommand;
 import me.koallann.p2ps.util.ByteUtils;
 
-public final class PeerViewerThread extends Thread {
+final class PeerViewerThread extends Thread {
 
     private final DatagramSocket streamingSocket;
     private final int dataMaxSize;
@@ -67,7 +67,7 @@ public final class PeerViewerThread extends Thread {
                 reader.close();
                 return null;
             }
-            length += line.length() + 1;
+            length += line.length() + 1; // plus 1 because the LF
 
             line = reader.readLine();
             if (line == null) {
