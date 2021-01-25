@@ -1,11 +1,12 @@
 package me.koallann.p2ps.command;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
-import me.koallann.p2ps.util.ByteUtils;
 import me.koallann.p2ps.util.StringUtils;
 
 public final class CommandParser {
@@ -17,13 +18,13 @@ public final class CommandParser {
         // This is a pure static class
     }
 
-    public static Command readCommand(Request request, int bodyMaxSize) {
+    public static Command readCommand(Request request) throws IOException, IllegalArgumentException {
         final Scanner scanner = new Scanner(new ByteArrayInputStream(request.data));
         scanner.useDelimiter(LINE_DELIMITER);
 
         final String commandTypeLine = scanner.nextLine();
         final Map<String, String> requestParams = buildRequestParams(scanner);
-        final byte[] requestBody = buildRequestBody(scanner, bodyMaxSize);
+        final byte[] requestBody = buildRequestBody(scanner);
 
         switch (Command.Type.valueOf(commandTypeLine)) {
             case CONNECT_ME:
@@ -54,18 +55,19 @@ public final class CommandParser {
         return params;
     }
 
-    private static byte[] buildRequestBody(Scanner scanner, int bodyMaxSize) {
-        byte[] body = new byte[bodyMaxSize];
-        int read = 0;
+    private static byte[] buildRequestBody(Scanner scanner) throws IOException {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        while (scanner.hasNextByte() && read < bodyMaxSize) {
-            body[read++] = scanner.nextByte();
-        }
-        if (read < bodyMaxSize) {
-            body = ByteUtils.resizeArray(body, read);
+        while (scanner.hasNextLine()) {
+            outputStream.write(scanner.nextLine().getBytes());
+
+            if (scanner.hasNextLine()) {
+                outputStream.write(LINE_DELIMITER.getBytes());
+            }
         }
 
-        return body;
+        outputStream.close();
+        return outputStream.toByteArray();
     }
 
 }

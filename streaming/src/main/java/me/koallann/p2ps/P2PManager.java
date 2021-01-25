@@ -50,12 +50,13 @@ public final class P2PManager {
         }
 
         final PeerStreaming streaming = new PeerStreaming(STREAMING_PACKET_MAX_SIZE, this::handleStreamingIncoming);
+        streams.put(host, streaming);
+
         if (connectMeRequests.containsKey(host)) {
             streaming.setPeer(connectMeRequests.get(host));
         }
-        streams.put(host, streaming);
-        streaming.start();
 
+        streaming.start();
         makeConnectMeRequest(host, streaming.getViewerPort());
     }
 
@@ -76,19 +77,27 @@ public final class P2PManager {
     }
 
     private synchronized byte[] handleServerIncoming(Request request) {
-        final Command cmd = CommandParser.readCommand(request, SERVER_PACKET_MAX_SIZE);
+        try {
+            final Command cmd = CommandParser.readCommand(request);
 
-        if (cmd instanceof ConnectMeCommand) {
-            return onConnectMeCommand((ConnectMeCommand) cmd);
+            if (cmd instanceof ConnectMeCommand) {
+                return onConnectMeCommand((ConnectMeCommand) cmd);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return Response.respondError("Invalid command");
     }
 
     private synchronized void handleStreamingIncoming(Request request) {
-        final Command cmd = CommandParser.readCommand(request, STREAMING_PACKET_MAX_SIZE);
+        try {
+            final Command cmd = CommandParser.readCommand(request);
 
-        if (cmd instanceof StreamingCommand) {
-            onStreamingCommand((StreamingCommand) cmd);
+            if (cmd instanceof StreamingCommand) {
+                onStreamingCommand((StreamingCommand) cmd);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
