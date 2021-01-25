@@ -57,11 +57,23 @@ public final class P2PManager {
         }
 
         streaming.start();
-        makeConnectMeRequest(host, streaming.getViewerPort());
+
+        new Thread(() -> {
+            try {
+                makeConnectMeRequest(host, streaming.getViewerPort());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 
     public void makeStreaming(byte[] data) {
-        streams.values().forEach(streaming -> streaming.send(data));
+        try {
+            final Request request = StreamingCommand.buildRequest(data);
+            streams.values().forEach(streaming -> streaming.send(request.data));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void makeConnectMeRequest(String host, int viewerPort) throws IOException {

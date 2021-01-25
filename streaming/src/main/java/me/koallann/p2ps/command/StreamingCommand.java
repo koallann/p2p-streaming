@@ -8,6 +8,8 @@ import me.koallann.p2ps.util.StringUtils;
 
 public final class StreamingCommand extends Command {
 
+    public static final String PARAM_CONTENT_LENGTH = "Content-Length";
+
     public final byte[] data;
 
     StreamingCommand(byte[] data) {
@@ -25,7 +27,7 @@ public final class StreamingCommand extends Command {
 
     public static Request buildRequest(byte[] data) throws IOException {
         final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(StringUtils.format("%s\n\n", Type.STREAMING.name()).getBytes());
+        outputStream.write(StringUtils.format("%s\n%s: %d\n\n", Type.STREAMING.name(), PARAM_CONTENT_LENGTH, data.length).getBytes());
         outputStream.write(data);
         outputStream.close();
 

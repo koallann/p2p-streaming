@@ -22,6 +22,9 @@ public class ByteUtils {
 
     public static byte[] resizeArray(byte[] src, int n) {
         final byte[] resized = new byte[n];
+        if (n > src.length) {
+            n = src.length;
+        }
         System.arraycopy(src, 0, resized, 0, n);
         return resized;
     }
