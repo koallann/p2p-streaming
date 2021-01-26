@@ -17,7 +17,7 @@ import me.koallann.p2ps.peer.PeerStreaming;
 import me.koallann.p2ps.server.PeerServer;
 import me.koallann.p2ps.util.ByteUtils;
 
-public final class P2PManager {
+public final class P2pManager {
 
     private static final int PEER_SERVER_PORT = 9876;
     private static final int SERVER_PACKET_MAX_SIZE = 64;
@@ -29,7 +29,7 @@ public final class P2PManager {
 
     private final OnReceiveStreamingListener onReceiveStreamingListener;
 
-    public P2PManager(
+    public P2pManager(
         OnReceiveStreamingListener onReceiveStreamingListener
     ) throws IOException {
         this.server = new PeerServer(PEER_SERVER_PORT, SERVER_PACKET_MAX_SIZE, this::handleServerIncoming);
