@@ -46,7 +46,9 @@ final class PeerViewerThread extends Thread {
                 );
                 onReceiveDataListener.onReceive(request);
             } catch (IOException e) {
-                e.printStackTrace();
+                if (!isInterrupted()) {
+                    e.printStackTrace();
+                }
             }
         }
     }

@@ -1,11 +1,11 @@
 package me.koallann.p2ps.server;
 
+import me.koallann.p2ps.command.Request;
+import me.koallann.p2ps.util.ByteUtils;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import me.koallann.p2ps.util.ByteUtils;
-import me.koallann.p2ps.command.Request;
 
 final class PeerServerThread extends Thread {
 
@@ -39,7 +39,9 @@ final class PeerServerThread extends Thread {
                 conn.getOutputStream().write(response);
                 conn.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                if (!isInterrupted()) {
+                    e.printStackTrace();
+                }
             }
         }
     }

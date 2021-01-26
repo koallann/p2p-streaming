@@ -19,10 +19,10 @@ import me.koallann.p2ps.util.ByteUtils;
 
 public final class P2pManager {
 
-    private static final int PEER_SERVER_PORT = 9876;
     private static final int SERVER_PACKET_MAX_SIZE = 64;
     private static final int STREAMING_PACKET_MAX_SIZE = 1024;
 
+    private final int serverPort;
     private final PeerServer server;
     private final Map<String, PeerStreaming> streams;
     private final Map<String, Peer> connectMeRequests;
@@ -30,9 +30,11 @@ public final class P2pManager {
     private final OnReceiveStreamingListener onReceiveStreamingListener;
 
     public P2pManager(
+        int serverPort,
         OnReceiveStreamingListener onReceiveStreamingListener
     ) throws IOException {
-        this.server = new PeerServer(PEER_SERVER_PORT, SERVER_PACKET_MAX_SIZE, this::handleServerIncoming);
+        this.serverPort = serverPort;
+        this.server = new PeerServer(serverPort, SERVER_PACKET_MAX_SIZE, this::handleServerIncoming);
         this.streams = new HashMap<>();
         this.connectMeRequests = new HashMap<>();
         this.onReceiveStreamingListener = onReceiveStreamingListener;
@@ -82,7 +84,7 @@ public final class P2pManager {
     }
 
     private void makeConnectMeRequest(String host, int viewerPort) throws IOException {
-        final Socket socket = new Socket(InetAddress.getByName(host), PEER_SERVER_PORT);
+        final Socket socket = new Socket(InetAddress.getByName(host), serverPort);
 
         final Request request = ConnectMeCommand.buildRequest(viewerPort);
         socket.getOutputStream().write(request.data);
@@ -130,12 +132,12 @@ public final class P2pManager {
     }
 
     private void onStreamingCommand(StreamingCommand cmd) {
-        onReceiveStreamingListener.onReceive(cmd);
+        onReceiveStreamingListener.onReceiveStreaming(cmd);
     }
 
     @FunctionalInterface
     public interface OnReceiveStreamingListener {
-        void onReceive(StreamingCommand cmd);
+        void onReceiveStreaming(StreamingCommand cmd);
     }
 
 }
