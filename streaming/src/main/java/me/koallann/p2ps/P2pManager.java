@@ -119,7 +119,7 @@ public final class P2pManager {
     }
 
     private byte[] onConnectMeCommand(ConnectMeCommand cmd) {
-        final Peer peer = new Peer(cmd.host, cmd.port);
+        final Peer peer = new Peer(cmd.from.getHostAddress(), cmd.port);
         connectMeRequests.put(peer.host, peer);
 
         if (streams.containsKey(peer.host)) {

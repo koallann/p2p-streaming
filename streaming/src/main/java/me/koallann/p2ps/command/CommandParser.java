@@ -30,7 +30,7 @@ public final class CommandParser {
             case CONNECT_ME:
                 return ConnectMeCommand.from(request.from, requestParams);
             case STREAMING:
-                return StreamingCommand.from(requestBody);
+                return StreamingCommand.from(request.from, requestBody);
             default:
                 return null;
         }

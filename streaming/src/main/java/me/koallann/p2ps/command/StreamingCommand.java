@@ -1,10 +1,10 @@
 package me.koallann.p2ps.command;
 
+import me.koallann.p2ps.util.StringUtils;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
-
-import me.koallann.p2ps.util.StringUtils;
 
 public final class StreamingCommand extends Command {
 
@@ -12,17 +12,17 @@ public final class StreamingCommand extends Command {
 
     public final byte[] data;
 
-    StreamingCommand(byte[] data) {
-        super(Type.STREAMING);
+    StreamingCommand(InetAddress from, byte[] data) {
+        super(Type.STREAMING, from);
         this.data = data;
     }
 
-    public static StreamingCommand from(byte[] requestBody) throws IllegalArgumentException {
-        if (requestBody == null || requestBody.length == 0) {
-            throw new IllegalArgumentException("Body is null or empty");
+    public static StreamingCommand from(InetAddress address, byte[] content) throws IllegalArgumentException {
+        if (content == null || content.length == 0) {
+            throw new IllegalArgumentException("Content is null or empty");
         }
 
-        return new StreamingCommand(requestBody);
+        return new StreamingCommand(address, content);
     }
 
     public static Request buildRequest(byte[] data) throws IOException {

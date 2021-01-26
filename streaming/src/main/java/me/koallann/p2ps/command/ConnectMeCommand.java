@@ -11,12 +11,10 @@ public final class ConnectMeCommand extends Command {
 
     private static final String PARAM_PORT = "Port";
 
-    public final String host;
     public final int port;
 
-    ConnectMeCommand(String host, int port) {
-        super(Type.CONNECT_ME);
-        this.host = host;
+    ConnectMeCommand(InetAddress from, int port) {
+        super(Type.CONNECT_ME, from);
         this.port = port;
     }
 
@@ -35,7 +33,7 @@ public final class ConnectMeCommand extends Command {
             throw new IllegalArgumentException(StringUtils.format("Parameter \"%s\" must be an integer greater than 0", PARAM_PORT));
         }
 
-        return new ConnectMeCommand(address.getHostAddress(), port);
+        return new ConnectMeCommand(address, port);
     }
 
     public static Request buildRequest(int port) throws IOException {
