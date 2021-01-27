@@ -61,6 +61,7 @@ public final class P2pManager {
 
     public void requestPeerToConnectMe(String host) throws IOException {
         if (streams.containsKey(host)) {
+            makeConnectMeRequest(host, streams.get(host).getViewerPort());
             return;
         }
 
@@ -72,10 +73,21 @@ public final class P2pManager {
         }
 
         streaming.start();
+        makeConnectMeRequest(host, streaming.getViewerPort());
+    }
 
+    private void makeConnectMeRequest(String host, int viewerPort) throws IOException {
         new Thread(() -> {
             try {
-                makeConnectMeRequest(host, streaming.getViewerPort());
+                final Socket socket = new Socket(InetAddress.getByName(host), serverPort);
+
+                final ConnectMeCommand cmd = new ConnectMeCommand(InetAddress.getLocalHost(), viewerPort);
+                socket.getOutputStream().write(cmd.buildRequest().encode());
+
+                byte[] responseBytes = ByteUtils.read(socket.getInputStream(), SERVER_PACKET_MAX_SIZE);
+                final Response response = Response.from(responseBytes); // TODO: handle response
+
+                socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -93,18 +105,6 @@ public final class P2pManager {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private void makeConnectMeRequest(String host, int viewerPort) throws IOException {
-        final Socket socket = new Socket(InetAddress.getByName(host), serverPort);
-
-        final ConnectMeCommand cmd = new ConnectMeCommand(InetAddress.getLocalHost(), viewerPort);
-        socket.getOutputStream().write(cmd.buildRequest().encode());
-
-        byte[] responseBytes = ByteUtils.read(socket.getInputStream(), SERVER_PACKET_MAX_SIZE);
-        final Response response = Response.from(responseBytes);
-
-        socket.close();
     }
 
     private synchronized Response handleServerIncoming(Request request) {
