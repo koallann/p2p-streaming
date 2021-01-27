@@ -3,7 +3,9 @@ package me.koallann.p2ps;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import me.koallann.p2ps.command.Command;
@@ -49,6 +51,14 @@ public final class P2pManager {
         streams.values().forEach(PeerStreaming::stop);
         streams.clear();
         connectMeRequests.clear();
+    }
+
+    public List<PeerStreaming> getStreams() {
+        return new ArrayList<>(streams.values());
+    }
+
+    public List<Peer> getConnectMeRequests() {
+        return new ArrayList<>(connectMeRequests.values());
     }
 
     public void requestPeerToConnectMe(String host) throws IOException {
