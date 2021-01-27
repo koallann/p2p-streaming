@@ -1,16 +1,23 @@
 plugins {
     id 'java'
+    id 'com.github.johnrengelman.shadow'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
+group 'me.koallann'
+version '0.0.1'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'me.koallann.streaming.sample.Application'
+    }
+}
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation project(':streaming')
+    implementation project(path: ':streaming', configuration: 'shadow')
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
