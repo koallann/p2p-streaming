@@ -2,8 +2,6 @@ package me.koallann.p2ps.server;
 
 import java.io.IOException;
 
-import me.koallann.p2ps.command.Request;
-
 public final class PeerServer {
 
     private final PeerServerThread serverThread;

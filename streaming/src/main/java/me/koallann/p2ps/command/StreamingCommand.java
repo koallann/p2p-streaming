@@ -4,6 +4,7 @@ import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.koallann.p2ps.server.Request;
 import me.koallann.p2ps.util.ByteUtils;
 import me.koallann.p2ps.util.StringUtils;
 

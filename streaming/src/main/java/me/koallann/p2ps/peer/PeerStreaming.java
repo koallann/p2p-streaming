@@ -8,7 +8,7 @@ import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import me.koallann.p2ps.command.Request;
+import me.koallann.p2ps.server.Request;
 
 public final class PeerStreaming {
 

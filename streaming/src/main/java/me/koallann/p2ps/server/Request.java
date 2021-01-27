@@ -1,4 +1,4 @@
-package me.koallann.p2ps.command;
+package me.koallann.p2ps.server;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+import me.koallann.p2ps.command.Command;
 import me.koallann.p2ps.util.StringUtils;
 
 public class Request {

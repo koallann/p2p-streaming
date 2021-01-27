@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-import me.koallann.p2ps.command.Request;
+import me.koallann.p2ps.server.Request;
 
 final class PeerViewerThread extends Thread {
 

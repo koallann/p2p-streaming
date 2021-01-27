@@ -1,4 +1,4 @@
-package me.koallann.p2ps.command;
+package me.koallann.p2ps.server;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

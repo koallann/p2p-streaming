@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import me.koallann.p2ps.command.Request;
 import me.koallann.p2ps.util.ByteUtils;
 
 final class PeerServerThread extends Thread {

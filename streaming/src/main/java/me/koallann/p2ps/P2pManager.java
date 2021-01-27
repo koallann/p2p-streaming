@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import me.koallann.p2ps.command.ConnectMeCommand;
-import me.koallann.p2ps.command.Request;
-import me.koallann.p2ps.command.Response;
+import me.koallann.p2ps.server.Request;
+import me.koallann.p2ps.server.Response;
 import me.koallann.p2ps.command.StreamingCommand;
 import me.koallann.p2ps.peer.Peer;
 import me.koallann.p2ps.peer.PeerStreaming;
