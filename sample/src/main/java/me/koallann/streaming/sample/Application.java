@@ -1,11 +1,11 @@
-package me.koallann.chat;
+package me.koallann.streaming.sample;
 
 public class Application {
 
     public static void main(String[] args) {
         System.out.println("Application started\n");
 
-        final ChatConsole console = new ChatConsole();
+        final ClientConsole console = new ClientConsole();
         console.start();
 
         System.out.println("Application finished");

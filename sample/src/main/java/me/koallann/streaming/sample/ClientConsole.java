@@ -1,4 +1,4 @@
-package me.koallann.chat;
+package me.koallann.streaming.sample;
 
 import me.koallann.p2ps.P2pManager;
 import me.koallann.p2ps.command.StreamingCommand;
@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class ChatConsole extends Console implements P2pManager.OnReceiveStreamingListener {
+public class ClientConsole extends Console implements P2pManager.OnReceiveStreamingListener {
 
     private static final int OPTION_MENU_EXIT = 0;
     private static final int OPTION_MENU_REQUEST_CONNECT_ME = 1;
@@ -17,7 +17,7 @@ public class ChatConsole extends Console implements P2pManager.OnReceiveStreamin
 
     private final P2pManager p2pManager;
 
-    public ChatConsole() {
+    public ClientConsole() {
         try {
             this.p2pManager = new P2pManager(9876, this);
         } catch (IOException e) {
