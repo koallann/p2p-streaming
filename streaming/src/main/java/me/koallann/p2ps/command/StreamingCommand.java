@@ -1,37 +1,45 @@
 package me.koallann.p2ps.command;
 
-import me.koallann.p2ps.util.StringUtils;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.Map;
+
+import me.koallann.p2ps.util.ByteUtils;
+import me.koallann.p2ps.util.StringUtils;
 
 public final class StreamingCommand extends Command {
 
-    public static final String PARAM_CONTENT_LENGTH = "Content-Length";
+    private static final String PARAM_CONTENT_LENGTH = "Content-Length";
 
-    public final byte[] data;
+    public final byte[] content;
 
-    StreamingCommand(InetAddress from, byte[] data) {
-        super(Type.STREAMING, from);
-        this.data = data;
+    public StreamingCommand(InetAddress src, byte[] content) {
+        super(Type.STREAMING, src);
+        this.content = content;
     }
 
-    public static StreamingCommand from(InetAddress address, byte[] content) throws IllegalArgumentException {
+    public Request buildRequest() {
+        final Map<String, String> params = new HashMap<>();
+        params.put(PARAM_CONTENT_LENGTH, Integer.toString(content.length));
+
+        return new Request(src, type, params, content);
+    }
+
+    public static StreamingCommand from(Request request) throws IllegalArgumentException {
+        final byte[] content = request.content;
         if (content == null || content.length == 0) {
             throw new IllegalArgumentException("Content is null or empty");
         }
 
-        return new StreamingCommand(address, content);
-    }
+        final String contentLengthParam = request.params.get(PARAM_CONTENT_LENGTH);
+        if (contentLengthParam == null) {
+            throw new IllegalArgumentException(StringUtils.format("Param \"%s\" not set", PARAM_CONTENT_LENGTH));
+        }
 
-    public static Request buildRequest(byte[] data) throws IOException {
-        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(StringUtils.format("%s\n%s: %d\n\n", Type.STREAMING.name(), PARAM_CONTENT_LENGTH, data.length).getBytes());
-        outputStream.write(data);
-        outputStream.close();
+        final int contentLength = Integer.parseInt(contentLengthParam);
+        final byte[] contentResized = ByteUtils.resizeArray(content, contentLength);
 
-        return new Request(InetAddress.getLocalHost(), outputStream.toByteArray());
+        return new StreamingCommand(request.src, contentResized);
     }
 
 }

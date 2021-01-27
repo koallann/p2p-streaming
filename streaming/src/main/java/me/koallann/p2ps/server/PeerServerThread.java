@@ -1,11 +1,11 @@
 package me.koallann.p2ps.server;
 
-import me.koallann.p2ps.command.Request;
-import me.koallann.p2ps.util.ByteUtils;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import me.koallann.p2ps.command.Request;
+import me.koallann.p2ps.util.ByteUtils;
 
 final class PeerServerThread extends Thread {
 
@@ -30,7 +30,7 @@ final class PeerServerThread extends Thread {
             try {
                 final Socket conn = serverSocket.accept();
 
-                final Request request = new Request(
+                final Request request = Request.from(
                     conn.getInetAddress(),
                     ByteUtils.read(conn.getInputStream(), packetMaxSize)
                 );

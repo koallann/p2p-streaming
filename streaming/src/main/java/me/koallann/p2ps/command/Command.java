@@ -4,16 +4,16 @@ import java.net.InetAddress;
 
 public abstract class Command {
 
-    public final Type type;
-    public final InetAddress from;
-
-    public Command(Type type, InetAddress from) {
-        this.type = type;
-        this.from = from;
-    }
-
     public enum Type {
         CONNECT_ME, STREAMING
+    }
+
+    public final Type type;
+    public final InetAddress src;
+
+    public Command(Type type, InetAddress src) {
+        this.type = type;
+        this.src = src;
     }
 
 }

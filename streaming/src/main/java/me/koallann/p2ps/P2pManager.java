@@ -8,8 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import me.koallann.p2ps.command.Command;
-import me.koallann.p2ps.command.CommandParser;
 import me.koallann.p2ps.command.ConnectMeCommand;
 import me.koallann.p2ps.command.Request;
 import me.koallann.p2ps.command.Response;
@@ -84,10 +82,14 @@ public final class P2pManager {
         }).start();
     }
 
-    public void makeStreaming(byte[] data) {
+    public void makeStreaming(byte[] content) {
         try {
-            final Request request = StreamingCommand.buildRequest(data);
-            streams.values().forEach(streaming -> streaming.send(request.data));
+            final StreamingCommand cmd = new StreamingCommand(InetAddress.getLocalHost(), content);
+            final byte[] requestEncoded = cmd.buildRequest().encode();
+
+            for (PeerStreaming streaming : streams.values()) {
+                streaming.send(requestEncoded);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -96,8 +98,8 @@ public final class P2pManager {
     private void makeConnectMeRequest(String host, int viewerPort) throws IOException {
         final Socket socket = new Socket(InetAddress.getByName(host), serverPort);
 
-        final Request request = ConnectMeCommand.buildRequest(viewerPort);
-        socket.getOutputStream().write(request.data);
+        final ConnectMeCommand cmd = new ConnectMeCommand(InetAddress.getLocalHost(), viewerPort);
+        socket.getOutputStream().write(cmd.buildRequest().encode());
 
         byte[] responseBytes = ByteUtils.read(socket.getInputStream(), SERVER_PACKET_MAX_SIZE);
         final Response response = new Response(responseBytes);
@@ -107,31 +109,24 @@ public final class P2pManager {
 
     private synchronized byte[] handleServerIncoming(Request request) {
         try {
-            final Command cmd = CommandParser.readCommand(request);
-
-            if (cmd instanceof ConnectMeCommand) {
-                return onConnectMeCommand((ConnectMeCommand) cmd);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+            final ConnectMeCommand cmd = ConnectMeCommand.from(request);
+            return onConnectMeCommand(cmd);
+        } catch (IllegalArgumentException e) {
+            return Response.respondError("Invalid command");
         }
-        return Response.respondError("Invalid command");
     }
 
     private synchronized void handleStreamingIncoming(Request request) {
         try {
-            final Command cmd = CommandParser.readCommand(request);
-
-            if (cmd instanceof StreamingCommand) {
-                onStreamingCommand((StreamingCommand) cmd);
-            }
-        } catch (IOException e) {
+            final StreamingCommand cmd = StreamingCommand.from(request);
+            onStreamingCommand((StreamingCommand) cmd);
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
 
     private byte[] onConnectMeCommand(ConnectMeCommand cmd) {
-        final Peer peer = new Peer(cmd.from.getHostAddress(), cmd.port);
+        final Peer peer = new Peer(cmd.src.getHostAddress(), cmd.port);
         connectMeRequests.put(peer.host, peer);
 
         if (streams.containsKey(peer.host)) {

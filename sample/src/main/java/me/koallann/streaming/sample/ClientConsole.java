@@ -121,7 +121,7 @@ public class ClientConsole extends Console implements P2pManager.OnReceiveStream
 
     @Override
     public void onReceiveStreaming(StreamingCommand cmd) {
-        println("onReceiveStreaming");
+        println("onReceiveStreaming: " + new String(cmd.content));
     }
 
 }
