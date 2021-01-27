@@ -20,7 +20,7 @@ public final class PeerServer {
 
     @FunctionalInterface
     public interface OnConnectionListener {
-        byte[] onConnection(Request request) throws IOException;
+        Response onConnection(Request request) throws IOException;
     }
 
 }

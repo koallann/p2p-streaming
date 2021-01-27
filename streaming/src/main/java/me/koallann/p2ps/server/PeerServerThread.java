@@ -33,9 +33,9 @@ final class PeerServerThread extends Thread {
                     conn.getInetAddress(),
                     ByteUtils.read(conn.getInputStream(), packetMaxSize)
                 );
-                final byte[] response = onConnectionListener.onConnection(request);
+                final Response response = onConnectionListener.onConnection(request);
 
-                conn.getOutputStream().write(response);
+                conn.getOutputStream().write(response.encode());
                 conn.close();
             } catch (IOException e) {
                 if (!isInterrupted()) {

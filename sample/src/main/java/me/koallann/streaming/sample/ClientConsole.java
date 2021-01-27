@@ -33,9 +33,9 @@ public class ClientConsole extends Console implements P2pManager.OnReceiveStream
 
     private void menuLoop() {
         clear();
-        println("#########\n" +
-            "MENU\n" +
-            "#########\n\n" +
+        println("###################\n" +
+            "P2P STREAMING MENU\n" +
+            "###################\n\n" +
             "1 - Send CONNECT_ME request\n" +
             "2 - Make STREAMING\n" +
             "3 - List established connections\n" +
@@ -47,10 +47,7 @@ public class ClientConsole extends Console implements P2pManager.OnReceiveStream
             int option = Integer.parseInt(scanner.nextLine());
             println();
 
-            if (!handleMenuChoose(option)) {
-                holdOutput();
-                return;
-            }
+            if (!handleMenuChoose(option)) return;
             menuLoop();
         } catch (Exception e) {
             println("\nInvalid option!");

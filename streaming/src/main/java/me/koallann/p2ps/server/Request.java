@@ -51,7 +51,7 @@ public class Request {
         return outputStream.toByteArray();
     }
 
-    public static Request from(InetAddress src, byte[] bytes) throws IOException {
+    public static Request from(InetAddress src, byte[] bytes) throws IOException, IllegalArgumentException {
         final Scanner scanner = new Scanner(new ByteArrayInputStream(bytes));
         scanner.useDelimiter(Character.toString(LINE_DELIMITER));
 

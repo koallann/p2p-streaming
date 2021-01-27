@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 import me.koallann.p2ps.command.ConnectMeCommand;
-import me.koallann.p2ps.server.Request;
-import me.koallann.p2ps.server.Response;
 import me.koallann.p2ps.command.StreamingCommand;
 import me.koallann.p2ps.peer.Peer;
 import me.koallann.p2ps.peer.PeerStreaming;
 import me.koallann.p2ps.server.PeerServer;
+import me.koallann.p2ps.server.Request;
+import me.koallann.p2ps.server.Response;
 import me.koallann.p2ps.util.ByteUtils;
 
 public final class P2pManager {
@@ -102,17 +102,17 @@ public final class P2pManager {
         socket.getOutputStream().write(cmd.buildRequest().encode());
 
         byte[] responseBytes = ByteUtils.read(socket.getInputStream(), SERVER_PACKET_MAX_SIZE);
-        final Response response = new Response(responseBytes);
+        final Response response = Response.from(responseBytes);
 
         socket.close();
     }
 
-    private synchronized byte[] handleServerIncoming(Request request) {
+    private synchronized Response handleServerIncoming(Request request) {
         try {
             final ConnectMeCommand cmd = ConnectMeCommand.from(request);
             return onConnectMeCommand(cmd);
         } catch (IllegalArgumentException e) {
-            return Response.respondError("Invalid command");
+            return new Response(Response.Type.ERR, "Invalid command");
         }
     }
 
@@ -125,7 +125,7 @@ public final class P2pManager {
         }
     }
 
-    private byte[] onConnectMeCommand(ConnectMeCommand cmd) {
+    private Response onConnectMeCommand(ConnectMeCommand cmd) {
         final Peer peer = new Peer(cmd.src.getHostAddress(), cmd.port);
         connectMeRequests.put(peer.host, peer);
 
@@ -133,7 +133,7 @@ public final class P2pManager {
             streams.get(peer.host).setPeer(peer);
         }
 
-        return Response.respondOK();
+        return new Response(Response.Type.OK, null);
     }
 
     private void onStreamingCommand(StreamingCommand cmd) {

@@ -2,10 +2,9 @@ package me.koallann.p2ps.server;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import me.koallann.p2ps.util.StringUtils;
 
 public final class Response {
 
@@ -13,46 +12,38 @@ public final class Response {
         OK, ERR
     }
 
-    private Type type;
-    private String errorCause;
+    public final Type type;
+    public final String errorCause;
 
-    public Response(byte[] data) throws IOException, IllegalArgumentException {
-        check(data);
+    public Response(Type type, String errorCause) {
+        this.type = type;
+        this.errorCause = errorCause;
     }
 
-    public Type getType() {
-        return type;
-    }
+    public byte[] encode() throws IOException {
+        final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        outputStream.write(type.name().getBytes());
 
-    public String getErrorCause() {
-        return errorCause;
-    }
-
-    private void check(byte[] data) throws IOException, IllegalArgumentException {
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(data)));
-        final String firstLine = reader.readLine();
-
-        try {
-            final Type type = Type.valueOf(firstLine);
-            this.type = type;
-
-            if (type == Type.ERR) {
-                reader.readLine();
-                this.errorCause = reader.readLine();
-            }
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid data");
-        } finally {
-            reader.close();
+        if (type == Type.ERR && errorCause != null) {
+            outputStream.write(errorCause.getBytes());
         }
+
+        outputStream.close();
+        return outputStream.toByteArray();
     }
 
-    public static byte[] respondOK() {
-        return Type.OK.name().getBytes();
-    }
+    public static Response from(byte[] bytes) throws IOException, IllegalArgumentException {
+        final BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(bytes)));
+        final String typeLine = reader.readLine();
+        final Type type = Type.valueOf(typeLine);
 
-    public static byte[] respondError(String errorMessage) {
-        return StringUtils.format("%s\n\nCause: %s", Type.OK.name(), errorMessage).getBytes();
+        String errorCause = null;
+        if (type == Type.ERR) {
+            errorCause = reader.readLine();
+        }
+
+        reader.close();
+        return new Response(type, errorCause);
     }
 
 }
