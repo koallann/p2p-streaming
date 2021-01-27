@@ -8,7 +8,7 @@ public class Application {
         final ClientConsole console = new ClientConsole();
         console.start();
 
-        System.out.println("Application finished");
+        System.out.println("\nApplication finished\n");
     }
 
 }

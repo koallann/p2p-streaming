@@ -1,6 +1,5 @@
 package me.koallann.streaming.sample;
 
-import java.io.IOException;
 import java.util.Scanner;
 
 public class Console {
@@ -24,10 +23,8 @@ public class Console {
     }
 
     public void clear() {
-        try {
-            Runtime.getRuntime().exec("clear");
-        } catch (IOException ignored) {
-        }
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
     }
 
     public void holdOutput() {

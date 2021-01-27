@@ -3,6 +3,7 @@ package me.koallann.streaming.sample;
 import me.koallann.p2ps.P2pManager;
 import me.koallann.p2ps.command.StreamingCommand;
 import me.koallann.p2ps.peer.Peer;
+import me.koallann.p2ps.util.StringUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -33,13 +34,12 @@ public class ClientConsole extends Console implements P2pManager.OnReceiveStream
 
     private void menuLoop() {
         clear();
-        println("###################\n" +
-            "P2P STREAMING MENU\n" +
-            "###################\n\n" +
-            "1 - Send CONNECT_ME request\n" +
-            "2 - Make STREAMING\n" +
-            "3 - List established connections\n" +
-            "0 - Exit\n"
+        println(
+            "P2Ps Menu\n\n" +
+                "1 - Send CONNECT_ME request\n" +
+                "2 - Make STREAMING\n" +
+                "3 - List established connections\n" +
+                "0 - Exit\n"
         );
         print("Option: ");
 
@@ -79,7 +79,7 @@ public class ClientConsole extends Console implements P2pManager.OnReceiveStream
 
     private void onRequestConnectMe() {
         try {
-            print("Type host (x.x.x.x): ");
+            print("Type host: ");
             final InetAddress address = InetAddress.getByName(scanner.nextLine());
 
             try {
@@ -103,7 +103,7 @@ public class ClientConsole extends Console implements P2pManager.OnReceiveStream
     }
 
     private void onListEstablishedConnections() {
-        println("You are connected to these peers:");
+        println("You are connected to these peers:\n");
         println("<peer_host>:<peer_port> (:<my_port_to_peer)>\n");
 
         p2pManager.getStreams().forEach(streaming -> {
@@ -118,7 +118,12 @@ public class ClientConsole extends Console implements P2pManager.OnReceiveStream
 
     @Override
     public void onReceiveStreaming(StreamingCommand cmd) {
-        println("\nonReceiveStreaming: " + new String(cmd.content));
+        println(
+            StringUtils.format("\nonReceiveStreaming\nSource: %s\nContent: %s",
+                cmd.src.getHostAddress(),
+                new String(cmd.content)
+            )
+        );
     }
 
 }
